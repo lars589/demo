@@ -4,19 +4,19 @@
   "generator": "scripts/gds/package-core.js",
   "core_version": "1.17.0",
   "core_contract": "1.17.0",
-  "source_commit": "8fb5f45d8169dc477ecb678f5f84654956a11676",
+  "source_commit": "63dde3ce73ad72faa048be098ee8ec87a2846259",
   "source_ref": "HEAD",
-  "built_at": "2026-07-05T22:33:12.379Z",
+  "built_at": "2026-07-05T23:52:25.054Z",
   "redaction": {
     "model": "docs-redacted+functional-verbatim",
-    "docs_redacted": 260,
+    "docs_redacted": 262,
     "functional_verbatim": 848,
     "rules": 3,
     "gate_literals": 3,
     "gate": "passed"
   },
-  "file_count": 1108,
-  "tree_sha256": "b3d5bdf1078a17d092823b5be737174370bcb89ea4cec024ddbe417027335838",
+  "file_count": 1110,
+  "tree_sha256": "7a43c3c2d90e4035204b2c1e8b72818f05f1c8eefd38add12c6d63d6d0ccd95d",
   "files": [
     {
       "path": ".claude/skills/blocker-review/SKILL.md",
@@ -1046,12 +1046,22 @@
     {
       "path": "docs/adr/0130-provision-remote-exec-over-ssh.md",
       "mode": "0000644",
-      "sha256": "ea8a61b5fbb57022d99d65fc0d52aee3d92039325f2ab23f3f90a2957c6a1dc3"
+      "sha256": "0ef5bfaf70ee1560697ae679580419ec63ebe55c799205166bb33063d13e2661"
+    },
+    {
+      "path": "docs/adr/0131-cohost-fleet-control-plane-migration.md",
+      "mode": "0000644",
+      "sha256": "0bb36e63afeeb279fd3c9079222dd52b96a21cd8642ffb1a926ab42ef5c5cb6a"
+    },
+    {
+      "path": "docs/adr/0131-rank-scoped-skill-visibility.md",
+      "mode": "0000644",
+      "sha256": "656930f24b02a72feb995966eba06d73d7ee2301972d83ffe423ef6862f23c2a"
     },
     {
       "path": "docs/adr/README.md",
       "mode": "0000644",
-      "sha256": "608364edc20e214977690ff5ceb32a53692066586b4584ead26fff7f34538817"
+      "sha256": "397f25559228b0c0bcb0ef85cedc3fb66d4e924abb732d19ec4ea70397ffeef1"
     },
     {
       "path": "docs/architecture.md",
@@ -2181,7 +2191,7 @@
     {
       "path": "modules/economy/cost.js",
       "mode": "0000644",
-      "sha256": "b34bd2ba85a45011249e040de47a2d6d4f12fb5dc4cfc6ceb5961f699565e983"
+      "sha256": "5d125e8b884ebfeb5687ee6748c49bf752d5757114ede98d0cabf2eee4a38b76"
     },
     {
       "path": "modules/economy/credits.js",
@@ -2936,7 +2946,7 @@
     {
       "path": "modules/status-ui/public/index.html",
       "mode": "0000644",
-      "sha256": "2da62367c746759179254112b312ea5d8023903c638e8ef70823cb3300d6f40c"
+      "sha256": "c9a37a51e098cd7ab7dfbb1a800b767ac25f5ade6ef40c22ea47ca326a4b8dc3"
     },
     {
       "path": "modules/status-ui/public/snapshots/.gitkeep",
@@ -2946,7 +2956,7 @@
     {
       "path": "modules/status-ui/public/status.js",
       "mode": "0000644",
-      "sha256": "bdd53da1fa545e6596128f202f8d7550b78abf6cca72c004dfe756b4d4b83baf"
+      "sha256": "7d21fcc9d685f12d90147008b8eb385d5b86c8c50ecd0347072c9aa9a2492f20"
     },
     {
       "path": "modules/status-ui/public/style.css",
@@ -2996,7 +3006,7 @@
     {
       "path": "scripts/gds/CLAUDE.md",
       "mode": "0000644",
-      "sha256": "84d861b724abeec18b4d832a0894f76cf6225ba5742030abe0fee15a6b2d67be"
+      "sha256": "e6624e5e6f57cd02337d3675d51529672f99f6c0d74b9cd2cce1b05ef9ea620e"
     },
     {
       "path": "scripts/gds/abandon.js",
@@ -3516,7 +3526,7 @@
     {
       "path": "scripts/gds/provision.js",
       "mode": "0000644",
-      "sha256": "9a4cba72a0ed4ad3735ef41bf083dbff4aee6ae7fa6fb7fc24885831529518e0"
+      "sha256": "30213417f1a5eff79f23d4a88ad15eb4729d07261c19ad31a756e8173f0563ea"
     },
     {
       "path": "scripts/gds/publish-manifest.js",
@@ -4061,7 +4071,7 @@
     {
       "path": "src/bongos/routes/public.js",
       "mode": "0000644",
-      "sha256": "a1aa8af11b23ae4612c7e196bd0f66d54aeb4b9cf9e812a3cf4159dfd18f2eca"
+      "sha256": "fd3dd30a194cd4638e7ef6fe34d17c1e94183926543f3c662b8cb9ec2b4a6e97"
     },
     {
       "path": "src/bongos/routes/security.js",
@@ -5161,7 +5171,7 @@
     {
       "path": "tests/provision.mjs",
       "mode": "0000644",
-      "sha256": "147d3986465b5e6c09c4567d9cb5167ca12be6090c566dabc49aaccc261e2e00"
+      "sha256": "ac5bceac82dd37bb2b641c66b76a5bd94167f89ea221e49e553009006953e137"
     },
     {
       "path": "tests/public_mirror_export.mjs",
@@ -5561,7 +5571,7 @@
   ],
   "tarball": {
     "name": "cloudbongos-core-1.17.0.tgz",
-    "sha256": "60a2ff3985be640ef7ee322a454ee2b7abe41607ff6333e8fbc9aa8be9808fdf",
-    "bytes": 3556654
+    "sha256": "0bb748c977c68eb97fa116a535aaac7b3afead5dce5c7224692a2def1597064e",
+    "bytes": 3566556
   }
 }

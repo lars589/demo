@@ -1,0 +1,40 @@
+{
+  "_note": "demo — work-hierarchy tiers (ADR 0086 §1): per-tier label/enabled + roles (which tier carries scope_modules / members / done-when criteria), resolved over the six-tier default in src/bongos/hierarchy-config.js. Authored by `bongos init`.",
+  "tiers": [
+    {
+      "key": "project",
+      "label": "Project",
+      "enabled": true
+    },
+    {
+      "key": "version",
+      "label": "Version",
+      "enabled": true
+    },
+    {
+      "key": "goal",
+      "label": "Goal",
+      "enabled": true
+    },
+    {
+      "key": "criteria",
+      "label": "Criteria",
+      "enabled": true
+    },
+    {
+      "key": "task",
+      "label": "Task",
+      "enabled": true
+    },
+    {
+      "key": "subtask",
+      "label": "Sub-task",
+      "enabled": true
+    }
+  ],
+  "roles": {
+    "scope": "goal",
+    "membership": "goal",
+    "criteria": "criteria"
+  }
+}

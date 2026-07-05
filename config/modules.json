@@ -1,0 +1,8 @@
+{
+  "modules": {
+    "game": false,
+    "art-pipeline": false,
+    "discord": false,
+    "dev-box": false
+  }
+}

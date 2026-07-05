@@ -1,0 +1,28 @@
+{
+  "_note": "demo — instance brand pack (overrides over config/branding.neutral.json). Authored by `bongos init`. Fill the LOOK (palette/fonts/wordmark) with your own LLM via docs/branding-fill-prompt.md.",
+  "identity": {
+    "productName": "demo",
+    "worldName": "demo",
+    "company": {
+      "name": "",
+      "site": ""
+    }
+  },
+  "llmProjectName": "demo",
+  "domains": {
+    "publicOrigin": "https://demo.cloudbongos.com",
+    "buildersOrigin": "https://demo.cloudbongos.com",
+    "statusOrigin": "https://demo.cloudbongos.com",
+    "oauthOrigin": "https://demo.cloudbongos.com"
+  },
+  "repo": {
+    "owner": "lars589",
+    "name": "demo"
+  },
+  "firstAdmin": "lars589",
+  "currency": {
+    "label": "credits",
+    "symbol": ""
+  },
+  "envPrefix": "CLOUDBONGOS"
+}

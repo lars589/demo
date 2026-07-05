@@ -1,0 +1,121 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/gds/ship.js:*)",
+      "Bash(node scripts/gds/claim.js:*)",
+      "Bash(node scripts/gds/release.js:*)",
+      "Bash(node scripts/gds/reauth.js:*)",
+      "Bash(node scripts/gds/paste-token.js:*)",
+      "Bash(node scripts/gds/start.js:*)",
+      "Bash(node scripts/gds/setup.js:*)",
+      "Bash(node scripts/gds/sandbox-stage.js:*)",
+      "Bash(node scripts/gds/capture.js:*)",
+      "Bash(node scripts/gds/learning-capture.js:*)",
+      "Bash(node scripts/gds/doctor.js:*)",
+      "Bash(node scripts/gds/api.js:*)",
+      "Bash(git config *)"
+    ]
+  },
+  "env": {
+    "OTB_INSESSION_COMPACT": "1"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/worktree-guard.js\""
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/cascade-route.js\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/lifecycle-card.js\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.js\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/conductor.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-cards.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/land-watch-card.js\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-refcheck.js\""
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-sound.js\""
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bongos exec scripts/gds/session-cost.js"
+          },
+          {
+            "type": "command",
+            "command": "bongos exec scripts/gds/session-digest.js"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact.js\""
+          }
+        ]
+      }
+    ]
+  }
+}

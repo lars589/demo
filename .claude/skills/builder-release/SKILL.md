@@ -37,5 +37,5 @@ The task is immediately claimable by another session.
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`
+- Reads: `~/.config/cloudbongos/gds-session.json`
 - Calls: `GET /api/gds/me`, `POST /api/gds/claims/:id/resolve`

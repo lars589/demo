@@ -10,7 +10,7 @@
 // than it saves. Recovery is retrieval-first — every stub points at /recall or a
 // re-Read (task 1350).
 //
-// FLAGGED OFF BY DEFAULT. Runs only when OTB_INSESSION_COMPACT=1. Unset/anything
+// FLAGGED OFF BY DEFAULT. Runs only when CLOUDBONGOS_INSESSION_COMPACT=1. Unset/anything
 // else → instant no-op (the default for every builder). "Wire, don't arm."
 //
 // DEGRADE. If the harness build lacks a PreCompact event, the PreCompact stanza
@@ -27,7 +27,7 @@ const fs = require('fs');
 const path = require('path');
 const { classifyEviction } = require('./eviction-policy');
 
-const FLAG = 'OTB_INSESSION_COMPACT';
+const FLAG = 'CLOUDBONGOS_INSESSION_COMPACT';
 const MAX_DIRECTIVE_STUBS = 30; // cap injected stubs so the directive itself stays cheap
 
 // Pure: decide whether/how to run, from the env flag + the hook event name.

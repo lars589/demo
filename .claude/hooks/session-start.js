@@ -15,7 +15,7 @@
 //      transcripts (sync) + kick analysis (detached). Both self-gate on consent.
 //   3. Promotion/demotion greeting (was rank-change-greeting.sh → now .js).
 //   4. Memory pull-on-session-start (was pull-memory.sh → pull-memory.js),
-//      preserving the OTB_MEMORY_PULL_OFF + OTB_SUBAGENT kill-switches.
+//      preserving the CLOUDBONGOS_MEMORY_PULL_OFF + CLOUDBONGOS_SUBAGENT kill-switches.
 //
 // Every step is best-effort and isolated: a failure in one never blocks session
 // start or the others. Child node scripts are spawned with process.execPath
@@ -61,11 +61,11 @@ function syncEnvLocal() {
   if (fs.existsSync(mainEnv)) {
     try {
       fs.copyFileSync(mainEnv, path.join(toplevel, '.env.local'));
-      console.log('[otb] Copied .env.local from the main checkout into this worktree.');
+      console.log('[cloudbongos] Copied .env.local from the main checkout into this worktree.');
     } catch (_) { /* best-effort */ }
   } else {
-    console.log('[otb] No .env.local in the main checkout. If you need local secrets, run /builder-setup.');
-    console.log("[otb] (The art pipeline's Google AI Studio key also resolves from ~/.config/otb/env, which survives worktree churn.)");
+    console.log('[cloudbongos] No .env.local in the main checkout. If you need local secrets, run /builder-setup.');
+    console.log("[cloudbongos] (The art pipeline's Google AI Studio key also resolves from ~/.config/cloudbongos/env, which survives worktree churn.)");
   }
 }
 
@@ -110,10 +110,10 @@ function runNodeDetached(scriptPath, args = []) {
 // (config/branding.json resolved over the neutral starter) so each Cloud Bongos
 // instance prints its OWN identity and the card can't drift; the platform line
 // is the portable-core constant. Best-effort: any failure prints nothing and
-// never blocks session start. Skipped inside grader/subagent runs (OTB_SUBAGENT)
+// never blocks session start. Skipped inside grader/subagent runs (CLOUDBONGOS_SUBAGENT)
 // to keep their context clean.
 function printIdentityCard() {
-  if (process.env.OTB_SUBAGENT) return;
+  if (process.env.CLOUDBONGOS_SUBAGENT) return;
   let b;
   try {
     b = require(path.join(PROJECT_DIR, 'src', 'branding.js')).loadBranding();
@@ -137,6 +137,49 @@ function printIdentityCard() {
   } catch (_) { /* never block session start */ }
 }
 
+// ---- 0.1. First-run engine check (task 2105) ----
+// A freshly-CLONED standalone instance (ADR 0108) vendors the Cloud Bongos core but
+// hasn't installed it yet: no node_modules ⇒ no `bongos` bin and no scripts/gds, so
+// every builder skill's `bongos <verb>` fails. On 2026-07-08 an agent in exactly that
+// state IMPROVISED — read another instance's session and hit the wrong live board —
+// instead of stopping. This card makes the state obvious + actionable so the agent
+// runs the two first-run commands rather than guessing. Self-contained: it reads
+// package.json + config/branding.json DIRECTLY and never requires the core (the very
+// thing that's missing). INERT on a source/monorepo checkout (declares no core dep)
+// and once installed. Skipped in subagents.
+const CORE_DEP_NAMES = ['@cloudbongos/core', '@bongos/core', 'cloudbongos'];
+// PURE-ish + exported for tests: returns true iff it printed the card. `projectDir`
+// + `log` are injectable so the check unit-tests against a temp instance without
+// running the whole hook.
+function firstRunEngineCheck(projectDir = PROJECT_DIR, { log = console.log } = {}) {
+  if (process.env.CLOUDBONGOS_SUBAGENT) return false;
+  let pkg;
+  try { pkg = JSON.parse(fs.readFileSync(path.join(projectDir, 'package.json'), 'utf8')); }
+  catch (_) { return false; } // no/unreadable package.json → not a consumer instance → say nothing
+  const deps = Object.assign({}, pkg.dependencies, pkg.devDependencies);
+  const coreDep = CORE_DEP_NAMES.find((n) => deps[n]);
+  if (!coreDep) return false;                                                   // source/monorepo checkout → inert
+  if (fs.existsSync(path.join(projectDir, 'node_modules', coreDep))) return false; // engine installed → nothing to say
+  // Engine missing. Resolve the tag + origin from config/branding.json DIRECTLY —
+  // src/branding.js lives in the uninstalled package, so it cannot be required here.
+  let tag = '[cloudbongos]';
+  let origin = '';
+  try {
+    const b = JSON.parse(fs.readFileSync(path.join(projectDir, 'config', 'branding.json'), 'utf8'));
+    tag = `[${String(b.envPrefix || b.configDir || 'cloudbongos').toLowerCase()}]`;
+    origin = (b.domains && b.domains.publicOrigin) || '';
+  } catch (_) { /* origin optional — the login line falls back to a placeholder */ }
+  const loginTarget = origin || '<this-instance-url>';
+  log(`${tag} ── this project's engine isn't installed yet ──`);
+  log(`${tag} The Cloud Bongos core (${coreDep}) is a dependency, but node_modules is missing — so`);
+  log(`${tag} \`bongos\` and the builder tools (start / claim / ship) are not available in this folder.`);
+  log(`${tag} First run, from this folder:`);
+  log(`${tag}   npm install`);
+  log(`${tag}   npx bongos login ${loginTarget}   (one browser click — signs THIS folder in to its OWN instance)`);
+  log(`${tag} Until then, do NOT improvise against another instance's login — a wrong-instance action is refused by design.`);
+  return true;
+}
+
 // ---- 0.2. Dev-box preview card (task 1443) ----
 // On a dev box the game preview is HOSTED at https://sandbox-<login>.<apex> (ADR
 // 0044), reached over the Cloudflare tunnel — NOT localhost. But the harness
@@ -145,22 +188,22 @@ function printIdentityCard() {
 // A session that reaches for those hands the builder a dead localhost link (the
 // reported Builder-25 symptom). This card — printed ONLY on a box — surfaces the
 // real hosted URL and steers off localhost, so a box session never previews wrong.
-// Best-effort: a laptop has no /etc/otb/box.env → reads throw → nothing prints.
-// Skipped in subagents (OTB_SUBAGENT) to keep grader/worker context clean.
+// Best-effort: a laptop has no /etc/cloudbongos/box.env → reads throw → nothing prints.
+// Skipped in subagents (CLOUDBONGOS_SUBAGENT) to keep grader/worker context clean.
 function printBoxPreviewCard() {
-  if (process.env.OTB_SUBAGENT) return;
+  if (process.env.CLOUDBONGOS_SUBAGENT) return;
   let envText;
-  try { envText = fs.readFileSync('/etc/otb/box.env', 'utf8'); } catch (_) { return; } // not a box (or unreadable) → say nothing
+  try { envText = fs.readFileSync('/etc/cloudbongos/box.env', 'utf8'); } catch (_) { return; } // not a box (or unreadable) → say nothing
   try {
     const m = /^\s*(?:export\s+)?BOX_PREVIEW_HOSTNAME=(.*)$/m.exec(String(envText || ''));
     const host = m ? m[1].trim().replace(/^["']|["']$/g, '').trim() : '';
-    console.log("[otb] ── dev box: your game preview is HOSTED, not localhost ──");
+    console.log("[cloudbongos] ── dev box: your game preview is HOSTED, not localhost ──");
     if (host) {
-      console.log(`[otb] Sandbox: https://${host}  — run /builder-stage to refresh it with your current edits.`);
+      console.log(`[cloudbongos] Sandbox: https://${host}  — run /builder-stage to refresh it with your current edits.`);
     } else {
-      console.log('[otb] Sandbox URL: run `box-preview status` (no named-tunnel hostname is baked into this box).');
+      console.log('[cloudbongos] Sandbox URL: run `box-preview status` (no named-tunnel hostname is baked into this box).');
     }
-    console.log("[otb] Do NOT preview via the Claude Code preview tools or `npm run preview`/`npm start` here — they bind localhost, which the builder's browser cannot reach. Hand them the hosted URL above.");
+    console.log("[cloudbongos] Do NOT preview via the Claude Code preview tools or `npm run preview`/`npm start` here — they bind localhost, which the builder's browser cannot reach. Hand them the hosted URL above.");
   } catch (_) { /* never block session start */ }
 }
 
@@ -197,7 +240,7 @@ function printBoxPreviewCard() {
 //     the merge only runs on a clean `main` (ext4 on the box).
 //
 // Bounded + fail-open throughout: a slow/offline network or any git error never
-// blocks or delays session start. Off-switch OTB_FRESHNESS_CHECK_OFF; skipped in
+// blocks or delays session start. Off-switch CLOUDBONGOS_FRESHNESS_CHECK_OFF; skipped in
 // subagents. NB even on a successful pull, the control surfaces loaded for THIS
 // session (CLAUDE.md / hooks / memory) reflect the pre-pull state until the next
 // session — the success line says so.
@@ -236,7 +279,7 @@ function decideFreshness({ behind, ahead, branch, hasTrackedChanges }) {
 }
 
 function freshenOrWarn() {
-  if (process.env.OTB_SUBAGENT || process.env.OTB_FRESHNESS_CHECK_OFF) return;
+  if (process.env.CLOUDBONGOS_SUBAGENT || process.env.CLOUDBONGOS_FRESHNESS_CHECK_OFF) return;
   if (git(['rev-parse', '--is-inside-work-tree']) !== 'true') return;
   try {
     // Bounded so a slow/offline network never delays session start; a timeout
@@ -269,8 +312,8 @@ function freshenOrWarn() {
       merged = m.status === 0;
     } catch (_) { merged = false; }
     if (merged) {
-      console.log(`[otb] ✓ fast-forwarded this checkout ${behind} commit(s) to origin/main.`);
-      console.log('[otb]   (CLAUDE.md, the hooks, and the memory for THIS session reflect the pre-pull state — restart the session to pick those up.)');
+      console.log(`[cloudbongos] ✓ fast-forwarded this checkout ${behind} commit(s) to origin/main.`);
+      console.log('[cloudbongos]   (CLAUDE.md, the hooks, and the memory for THIS session reflect the pre-pull state — restart the session to pick those up.)');
       return;
     }
     // ff failed (race / would-overwrite-untracked / network) → warn below.
@@ -278,14 +321,14 @@ function freshenOrWarn() {
 
   // Behind but not auto-pulled (a 'warn' decision, or a 'pull' whose merge failed)
   // — warn so the session knows it may be stale.
-  console.log(`[otb] ⚠ this checkout is ${behind} commit(s) behind origin/main — not auto-pulled.`);
-  console.log('[otb]   CLAUDE.md, the hooks, and the memory loaded just now reflect that older state and may be STALE (code staleness is caught at ship-time merge; startup-loaded surfaces are not).');
+  console.log(`[cloudbongos] ⚠ this checkout is ${behind} commit(s) behind origin/main — not auto-pulled.`);
+  console.log('[cloudbongos]   CLAUDE.md, the hooks, and the memory loaded just now reflect that older state and may be STALE (code staleness is caught at ship-time merge; startup-loaded surfaces are not).');
   if (branch === 'main') {
-    console.log('[otb]   Resolve local changes if any, then:  git pull --ff-only origin main');
+    console.log('[cloudbongos]   Resolve local changes if any, then:  git pull --ff-only origin main');
   } else if (branch && branch !== 'HEAD') {
-    console.log(`[otb]   You're on '${branch}', not main — when ready:  git fetch origin main && git rebase origin/main`);
+    console.log(`[cloudbongos]   You're on '${branch}', not main — when ready:  git fetch origin main && git rebase origin/main`);
   } else {
-    console.log('[otb]   Detached HEAD — check out a branch, then:  git pull --ff-only origin main');
+    console.log('[cloudbongos]   Detached HEAD — check out a branch, then:  git pull --ff-only origin main');
   }
 }
 
@@ -293,6 +336,12 @@ function main() {
   // 0. Project identity card — print first so it's at the top of the
   //    session-start context, before any of the status lines below.
   try { printIdentityCard(); } catch (_) { /* never block */ }
+
+  // 0.05. First-run engine check — a freshly-cloned instance that hasn't run
+  //       `npm install` has no `bongos`/tools; say so + how to fix, so a session
+  //       never improvises against the wrong instance (task 2105). Inert on a
+  //       source checkout and once the engine is installed.
+  try { firstRunEngineCheck(); } catch (_) { /* never block */ }
 
   // 0.1. Dev-box auth gate — the FIRST thing a box session confirms: that its
   //      GDS session is a REAL, non-box-scoped CLI session (not the bootstrap
@@ -333,29 +382,29 @@ function main() {
 
   // 4. Memory pull-on-session-start (was pull-memory.sh → pull-memory.js).
   //    Preserve the bash shim's two kill-switches: never pull inside a grader
-  //    subagent (OTB_SUBAGENT) or when explicitly disabled (OTB_MEMORY_PULL_OFF).
-  if (!process.env.OTB_SUBAGENT && !process.env.OTB_MEMORY_PULL_OFF) {
+  //    subagent (CLOUDBONGOS_SUBAGENT) or when explicitly disabled (CLOUDBONGOS_MEMORY_PULL_OFF).
+  if (!process.env.CLOUDBONGOS_SUBAGENT && !process.env.CLOUDBONGOS_MEMORY_PULL_OFF) {
     const pullMemory = path.join(__dirname, 'pull-memory.js');
     if (fs.existsSync(pullMemory)) runNodeSync(pullMemory);
   }
 
   // 5. Sound-prefs mirror (#786): fetch the builder's per-sound on/off prefs and
-  //    write them to ~/.config/otb/sound-prefs.json so the local player honors
+  //    write them to ~/.config/cloudbongos/sound-prefs.json so the local player honors
   //    them. Detached — it's a best-effort network call that must never delay
   //    session start; a stale/absent file just means the player fails open.
-  if (!process.env.OTB_SUBAGENT) {
+  if (!process.env.CLOUDBONGOS_SUBAGENT) {
     const fetchSoundPrefs = path.join(PROJECT_DIR, 'scripts', 'gds', 'fetch-sound-prefs.js');
     if (fs.existsSync(fetchSoundPrefs)) runNodeDetached(fetchSoundPrefs);
   }
 
   // 5b. Shared art-key mirror (#1281): fetch the GDS-delivered shared Gemini key
-  //     (newcomers only) and write/remove ~/.config/otb/gds-session.json's
+  //     (newcomers only) and write/remove ~/.config/cloudbongos/gds-session.json's
   //     shared_gemini_api_key field so the local art pipeline can use it. Same
   //     detached, best-effort posture as the sound-prefs mirror — a stale/absent
   //     field just means the pipeline falls back to the builder's own key (or its
   //     normal "set a key" message). Re-run every session so promotion to Thetes
   //     withdraws the key automatically.
-  if (!process.env.OTB_SUBAGENT) {
+  if (!process.env.CLOUDBONGOS_SUBAGENT) {
     const fetchArtKey = path.join(PROJECT_DIR, 'scripts', 'gds', 'fetch-art-key.js');
     if (fs.existsSync(fetchArtKey)) runNodeDetached(fetchArtKey);
   }
@@ -365,8 +414,8 @@ function main() {
   //    for that task so the agent starts pointed at the relevant docs. SYNC so the
   //    hints reach the session-start context; the script self-bounds to <2s and is
   //    silent on any miss. Same two-switch pattern as the memory pull: never in a
-  //    grader subagent (OTB_SUBAGENT), and an explicit off switch (OTB_RECALL_HINTS_OFF).
-  if (!process.env.OTB_SUBAGENT && !process.env.OTB_RECALL_HINTS_OFF) {
+  //    grader subagent (CLOUDBONGOS_SUBAGENT), and an explicit off switch (CLOUDBONGOS_RECALL_HINTS_OFF).
+  if (!process.env.CLOUDBONGOS_SUBAGENT && !process.env.CLOUDBONGOS_RECALL_HINTS_OFF) {
     const recallHints = path.join(__dirname, 'recall-hints.js');
     if (fs.existsSync(recallHints)) runNodeSync(recallHints);
   }
@@ -381,4 +430,4 @@ if (require.main === module) {
   process.exit(0);
 }
 
-module.exports = { decideFreshness, freshenOrWarn };
+module.exports = { decideFreshness, freshenOrWarn, firstRunEngineCheck };

@@ -14,7 +14,7 @@ Composes operations that already exist, in a safe order, with the destructive on
 1. **Resolve the claim** — `/builder-ship` when there's committed, shippable work; `/builder-release` when there isn't. (It calls the sibling skills; it does not re-implement shipping.)
 2. **Clean-git verify** — refuse to go further if any *tracked* file is uncommitted. This is the same guard `scripts/gds/ship.js` enforces (`trackedDirty` in [`src/bongos/ship-preflight.js`](../../../src/bongos/ship-preflight.js)): untracked scratch is ignored, but a modified/staged/deleted tracked file means real work isn't committed — stop before anything is lost.
 3. **Worktree teardown** — from the main checkout, `git worktree remove` this session's linked worktree, `prune`, and delete the now-merged `claude/<name>` branch.
-4. **Box close-out (dev box only)** — if running on a dev box (`/etc/otb/box.env` exists), offer to `close-box` so the box stops billing. Optional and gated on a yes; declining just lets the box idle-park. On a laptop this step is skipped — there's no box to close.
+4. **Box close-out (dev box only)** — if running on a dev box (`/etc/cloudbongos/box.env` exists), offer to `close-box` so the box stops billing. Optional and gated on a yes; declining just lets the box idle-park. On a laptop this step is skipped — there's no box to close.
 
 It never pushes to `main`, never `ssh`-es, never runs a deploy — landing is `/builder-ship`'s job (server-mediated). It only ever touches the caller's **own** claim, **own** worktree, and **own** box.
 
@@ -24,7 +24,7 @@ It never pushes to `main`, never `ssh`-es, never runs a deploy — landing is `/
 
 - **Held claim(s):** `bongos exec scripts/gds/api.js GET /api/gds/me` → `active_claims`. (A builder can hold parallel claims across sessions; resolve only the one this session worked.)
 - **Are we in a linked worktree?** `git rev-parse --git-dir` differs from `git rev-parse --git-common-dir` ⇒ yes (`--git-dir` is the per-worktree `<main>/.git/worktrees/<name>`; `--git-common-dir` is the shared `<main>/.git`); they're equal ⇒ main checkout (skip step 3). Test `--git-dir`, **not** `--git-common-dir` — the latter always returns the shared `<main>/.git` even inside a worktree, so checking *it* for `/worktrees/` never matches.
-- **Are we on a dev box?** `/etc/otb/box.env` exists ⇒ yes. This is the codebase's canonical "am I on a box?" marker — written by `box.js provision`, the same presence-check `scripts/gds/sandbox-stage.js` (`isDevBox`) uses. On a box the close-out has an extra step: the box keeps billing until it's shut down or idle-parks (step 4). On a laptop there's no box — skip step 4.
+- **Are we on a dev box?** `/etc/cloudbongos/box.env` exists ⇒ yes. This is the codebase's canonical "am I on a box?" marker — written by `box.js provision`, the same presence-check `scripts/gds/sandbox-stage.js` (`isDevBox`) uses. On a box the close-out has an extra step: the box keeps billing until it's shut down or idle-parks (step 4). On a laptop there's no box — skip step 4.
 - **Working-tree state:** `git status --porcelain`.
 - **Commits ahead of main:** `git rev-list --count main..HEAD` (fall back to `origin/main..HEAD`). Real commits ⇒ likely shippable; zero ⇒ likely a release.
 
@@ -53,11 +53,11 @@ git branch -d claude/<worktree-name>        # -d (not -D): git refuses an unmerg
 
 Removing this session's worktree ends its filesystem — do it last, and tell the user the session is closed and they can start fresh from `/builder-start` anytime. **On a dev box, settle step 4 first:** if the builder is going to `close-box`, skip teardown entirely — deprovisioning destroys the whole `/workspace` disk, so removing one worktree first is wasted effort. Only tear the worktree down if they're keeping the box.
 
-**On the main checkout (not a worktree):** skip the teardown above — there's nothing to remove. On a **laptop** that means resolving the claim + clean-git verify is the whole close-out. On a **dev box** (step 0 found `/etc/otb/box.env`) the box itself is still up — continue to step 4.
+**On the main checkout (not a worktree):** skip the teardown above — there's nothing to remove. On a **laptop** that means resolving the claim + clean-git verify is the whole close-out. On a **dev box** (step 0 found `/etc/cloudbongos/box.env`) the box itself is still up — continue to step 4.
 
 ### 4. Box close-out — dev box only, gated, after the claim is resolved
 
-Skip this entirely if step 0 found no `/etc/otb/box.env` (a laptop — there's no box to close). On a box, resolving the claim does **not** stop the box billing; only closing it (or the idle-suspend sweep) does. Once the claim is resolved and the tree is clean, ask plainly:
+Skip this entirely if step 0 found no `/etc/cloudbongos/box.env` (a laptop — there's no box to close). On a box, resolving the claim does **not** stop the box billing; only closing it (or the idle-suspend sweep) does. Once the claim is resolved and the tree is clean, ask plainly:
 
 > *"Close the box down too? `close-box` deprovisions it — anything in `/workspace` you haven't shipped is gone. Or leave it: closing the tab keeps your session, and the box idle-parks on its own (cheap)."*
 
@@ -77,5 +77,5 @@ Skip this entirely if step 0 found no `/etc/otb/box.env` (a laptop — there's n
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`; `/etc/otb/box.env` (presence check only — "am I on a box?")
+- Reads: `~/.config/cloudbongos/gds-session.json`; `/etc/cloudbongos/box.env` (presence check only — "am I on a box?")
 - Runs: the `builder-ship` / `builder-release` skills (`scripts/gds/ship.js` · `release.js`), `bongos exec scripts/gds/api.js GET /api/gds/me`, and local `git worktree` / `git status` / `git branch` commands. On a dev box, if the builder opts in, it runs the `close-box` skill (`POST /api/gds/box/close`) — the one own-scoped API write it can make; otherwise it makes no API writes of its own.

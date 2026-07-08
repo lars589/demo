@@ -30,7 +30,7 @@ function readStdin() { try { return fs.readFileSync(0, 'utf8'); } catch (_) { re
 async function main() {
   // Kill-switch + subagent guard (mirrors session-cards.js): never fire inside a
   // grading/worker subagent, and honor the manual off-switch.
-  if (process.env.OTB_SESSION_CARDS_OFF || process.env.OTB_SUBAGENT) return;
+  if (process.env.CLOUDBONGOS_SESSION_CARDS_OFF || process.env.CLOUDBONGOS_SUBAGENT) return;
   readStdin(); // drain the payload; we don't need the prompt (land-watch is prompt-independent)
 
   let landWatch;

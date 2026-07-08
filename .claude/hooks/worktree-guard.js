@@ -20,7 +20,7 @@
 //
 // SAFETY POSTURE (a hook must NEVER break a turn — same rule as the other hooks):
 //   • Any error / unresolvable git / missing field → exit 0 with no output (allow).
-//   • OTB_ALLOW_CROSS_TREE=1 → documented opt-out for a deliberate cross-tree edit.
+//   • CLOUDBONGOS_ALLOW_CROSS_TREE=1 → documented opt-out for a deliberate cross-tree edit.
 //   • Non-guarded tools (Bash, Read, …) → allow. Git-op detection is intentionally
 //     out of scope here (too noisy; pre-push.js + the merge-time collision check
 //     cover git) — the documented failure is wrong-tree WRITES, which this catches.
@@ -75,8 +75,8 @@ function decideWorktreeGuard({ toolName, toolInput, worktreeRoot, mainRoot }) {
   const intoSibling = rel.split(path.sep).slice(0, 2).join('/') === '.claude/worktrees';
   const corrected = intoSibling ? null : path.join(worktreeRoot, rel);
   const reason = corrected
-    ? `Wrong git checkout. ${filePath} is in the MAIN checkout, but this session's worktree is:\n  ${worktreeRoot}\nRe-issue this write on the worktree copy instead:\n  ${corrected}\n(Worktree guard #951 — catches the corpus's #1 error class: writes landing in the wrong tree. Deliberate cross-tree edit? Set OTB_ALLOW_CROSS_TREE=1.)`
-    : `Wrong git checkout. ${filePath} is in a DIFFERENT worktree than this session's:\n  ${worktreeRoot}\nRe-target the path under this worktree. (Worktree guard #951; OTB_ALLOW_CROSS_TREE=1 to bypass.)`;
+    ? `Wrong git checkout. ${filePath} is in the MAIN checkout, but this session's worktree is:\n  ${worktreeRoot}\nRe-issue this write on the worktree copy instead:\n  ${corrected}\n(Worktree guard #951 — catches the corpus's #1 error class: writes landing in the wrong tree. Deliberate cross-tree edit? Set CLOUDBONGOS_ALLOW_CROSS_TREE=1.)`
+    : `Wrong git checkout. ${filePath} is in a DIFFERENT worktree than this session's:\n  ${worktreeRoot}\nRe-target the path under this worktree. (Worktree guard #951; CLOUDBONGOS_ALLOW_CROSS_TREE=1 to bypass.)`;
   return { deny: true, reason };
 }
 
@@ -100,7 +100,7 @@ function resolveRoots(cwd, run = execFileSync) {
 }
 
 async function main() {
-  if (process.env.OTB_ALLOW_CROSS_TREE) allow(); // documented opt-out
+  if (process.env.CLOUDBONGOS_ALLOW_CROSS_TREE) allow(); // documented opt-out
   let hook = {};
   try { hook = JSON.parse((await readStdin()) || '{}'); } catch { allow(); }
   if (!GUARDED_TOOLS.has(hook.tool_name)) allow(); // fast path: most calls aren't writes

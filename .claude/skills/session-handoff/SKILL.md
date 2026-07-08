@@ -35,7 +35,7 @@ Keep it **short and curated** — a prompt, not a transcript. Include only what 
 
 ## Constraints
 
-- **Never include secrets** — no tokens, passwords, or the CLI session bearer. If a step needs a credential, name where it lives (Settings, `~/.config/otb/…`), never the value.
+- **Never include secrets** — no tokens, passwords, or the CLI session bearer. If a step needs a credential, name where it lives (Settings, `~/.config/cloudbongos/…`), never the value.
 - **Task/idea/blocker ids are hall links** (`[#NNN](<buildersOrigin>#/task/NNN)` using `domains.buildersOrigin`) or plain `task NNN` — never a bare `#NNN` (it mis-autolinks to GitHub and 404s).
 - **One fenced block, copy-clean.** No prose outside the block except a one-line "here's your handoff prompt — paste it into a fresh session" lead-in.
 - Read-only: this skill composes text and changes no state. It does not claim, ship, release, or write files.

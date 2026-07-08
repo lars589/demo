@@ -49,4 +49,4 @@ Each summary result shows the hit id (`#NNN`, the handle for `--expand`), the ti
 ## Files this skill touches
 
 - Calls: `POST /api/gds/search` via `scripts/gds/recall.js` — twice over the same route: `{ q }` for the summary layer (step 1) and `{ expand: <id> }` for one hit's full content (step 2).
-- Reads: `~/.config/otb/gds-session.json` (the session token, like every `/builder-*` CLI).
+- Reads: `~/.config/cloudbongos/gds-session.json` (the session token, like every `/builder-*` CLI).

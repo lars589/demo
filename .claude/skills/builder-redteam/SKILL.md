@@ -23,7 +23,7 @@ The reporter does NOT need Archon attention to file. The Archon comes to the que
 
 ## What this skill does
 
-1. Reads `~/.config/otb/gds-session.json` for the bearer token.
+1. Reads `~/.config/cloudbongos/gds-session.json` for the bearer token.
 2. Hits `GET /api/gds/me` to confirm rank ≥ Metic. Refuses with a friendly message if Xenos.
 3. Walks the user through five questions (see below).
 4. POSTs to `/api/gds/security/reports`.
@@ -35,7 +35,7 @@ The reporter does NOT need Archon attention to file. The Archon comes to the que
 Ask one at a time. Don't batch — the answers feed each other.
 
 1. **Severity.** One of `low`, `medium`, `high`, `critical`. Show the bounty schedule from `GET /api/gds/public/bounty-table` if the user is unsure. Critical means "this could let an attacker forge writes as another builder or read data they're not entitled to"; high means a real attack vector with a workaround; medium is a defense-in-depth gap; low is a hardening recommendation.
-2. **Target.** One short line — the route, file, endpoint, or surface. Examples: `POST /api/gds/tasks/:id/override-request`, `src/bongos/auth.js#verifyToken`, `caddy: amazonprimea.com:443`. Goes into the `target` column verbatim.
+2. **Target.** One short line — the route, file, endpoint, or surface. Examples: `POST /api/gds/tasks/:id/override-request`, `src/bongos/auth.js#verifyToken`, `caddy: demo.cloudbongos.com:443`. Goes into the `target` column verbatim.
 3. **Title.** One sentence summarizing the flaw. Reads in the Archon queue first, so make it scan-friendly. Example: "OAuth state cookie has no SameSite=strict — CSRF window during auth handshake."
 4. **Description.** What's the impact? Who would notice? Why does it matter? A few sentences. Free-form Markdown.
 5. **Repro steps.** Numbered list of what an attacker (or auditor) does to demonstrate the issue. The auto-repro subagent (R68, when wired) will try to follow these exactly, so be precise. Use `<TOKEN>` or `<COOKIE>` placeholders for any sensitive values.

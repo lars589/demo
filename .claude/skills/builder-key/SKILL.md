@@ -12,7 +12,7 @@ You are checking the current builder's API-key coverage (today: the art pipeline
 A key is **never** pasted into chat, and **never** accepted as a CLI argument. The only place a key is ever written is the Settings page (`PUT /me/art-key/own`, driven by the browser). If the user pastes what looks like a key into the conversation:
 
 - **Do not** run it through any tool, echo it back, or forward it anywhere (the transcript is uploaded — a pasted key is now compromised the moment it's typed).
-- Refuse, and point them back to Settings: `https://amazonprimea.com/builders/settings#art-key`.
+- Refuse, and point them back to Settings: `https://demo.cloudbongos.com/builders/settings#art-key`.
 - `key-status.js` also refuses defensively if a key-looking string reaches it as an argument — that is a backstop, not the primary defense. The primary defense is **you never run it there in the first place**.
 
 ## How to use
@@ -23,7 +23,7 @@ A key is **never** pasted into chat, and **never** accepted as a CLI argument. T
    - If you have `mcp__visualize__show_widget`: call `mcp__visualize__read_me` once this session (modules `["interactive","mockup"]`) if you haven't, then render the HTML exactly as directed — **once**, no prose recap.
    - If you don't have that tool: the monospace card the script already printed IS the summary — relay it as-is.
 
-3. **Drive the UI-first add flow.** Tell the user to click "Add it in Settings ↗" in the card (or open `https://amazonprimea.com/builders/settings#art-key` themselves). The key syncs to their box automatically at next session start via `scripts/gds/fetch-art-key.js` — no further action needed from you.
+3. **Drive the UI-first add flow.** Tell the user to click "Add it in Settings ↗" in the card (or open `https://demo.cloudbongos.com/builders/settings#art-key` themselves). The key syncs to their box automatically at next session start via `scripts/gds/fetch-art-key.js` — no further action needed from you.
 
 4. **Confirm it resolved.** Once the user says they added it, run `bongos exec scripts/gds/key-status.js --recheck` — this re-syncs the local session file immediately (rather than waiting for next session start) and re-checks status. Relay the result: resolved (all set) or still missing (point back to step 2/3).
 
@@ -35,6 +35,6 @@ A key is **never** pasted into chat, and **never** accepted as a CLI argument. T
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`
+- Reads: `~/.config/cloudbongos/gds-session.json`
 - Calls: `GET /api/gds/me/art-key`, `GET /api/gds/me` (widgets knob)
 - Runs: `scripts/gds/key-status.js`, `scripts/gds/key-card.js` (via the status script), `scripts/gds/fetch-art-key.js` (via `--recheck`)

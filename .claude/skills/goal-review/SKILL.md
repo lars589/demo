@@ -68,7 +68,7 @@ The response is `{ criterion, goal_achieved, goal }`. **If `goal_achieved` is tr
 
 Any goal that flipped to `achieved` this session (or is already `achieved`) awaits a disposition: **archive** it (done, put it to rest) or **carry it forward** into the next version's scope. Surface each newly-achieved goal to the user and record the intended disposition in the session log.
 
-> The archive / reopen / carry-forward **actions** (the routes that mutate goal lifecycle) land in **BV1.R64** ([task 1518](https://amazonprimea.com/builders#/task/1518)) — they are not wired here. For this session, *report* achieved goals and capture the intent; once R64 ships, this step gains the verbs to execute it.
+> The archive / reopen / carry-forward **actions** (the routes that mutate goal lifecycle) land in **BV1.R64** ([task 1518](https://demo.cloudbongos.com/builders#/task/1518)) — they are not wired here. For this session, *report* achieved goals and capture the intent; once R64 ships, this step gains the verbs to execute it.
 
 **Step 5 — surface a summary.**
 

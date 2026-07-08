@@ -101,7 +101,7 @@ This mirrors what `ship.js` does automatically; it's here because /merge-mode de
 
 **Step 5 — smoke tests, push, deploy.**
 
-> **Deploy mode (#679 / [ADR 0042](../../../docs/adr/0042-builder-self-deploy-ci-auto-merge.md)).** `config/deploy.json` is now `mode: ci` (CI cutover landed 2026-06-13), so the **`ci`** path is current: there is no laptop merge and no SSH at all — landing happens via PR auto-merge and [`.github/workflows/deploy-prod.yml`](../../../.github/workflows/deploy-prod.yml) deploys `main`→prod from Actions. In `ci` mode, do NOT run the `git push origin main` + `ssh … ~/deploy.sh` lines below — instead confirm the PR auto-merged and the `deploy-prod` Actions run went green. The block below is the **legacy `laptop`** deploy mode (the operator's machine pushes `main` and SSHes the droplet) — it is the fallback path and only applies if `config/deploy.json` is reverted to `mode: laptop`. Check the active mode with `node -e "const s=require('./scripts/gds/ship.js'),fs=require('fs');let c=null;try{c=fs.readFileSync('config/deploy.json','utf8')}catch{}console.log(s.parseDeployMode(process.env.OTB_DEPLOY_MODE,c))"`.
+> **Deploy mode (#679 / [ADR 0042](../../../docs/adr/0042-builder-self-deploy-ci-auto-merge.md)).** `config/deploy.json` is now `mode: ci` (CI cutover landed 2026-06-13), so the **`ci`** path is current: there is no laptop merge and no SSH at all — landing happens via PR auto-merge and [`.github/workflows/deploy-prod.yml`](../../../.github/workflows/deploy-prod.yml) deploys `main`→prod from Actions. In `ci` mode, do NOT run the `git push origin main` + `ssh … ~/deploy.sh` lines below — instead confirm the PR auto-merged and the `deploy-prod` Actions run went green. The block below is the **legacy `laptop`** deploy mode (the operator's machine pushes `main` and SSHes the droplet) — it is the fallback path and only applies if `config/deploy.json` is reverted to `mode: laptop`. Check the active mode with `node -e "const s=require('./scripts/gds/ship.js'),fs=require('fs');let c=null;try{c=fs.readFileSync('config/deploy.json','utf8')}catch{}console.log(s.parseDeployMode(process.env.CLOUDBONGOS_DEPLOY_MODE,c))"`.
 
 ```bash
 bongos exec scripts/gds/smoke-gds.js    # 16/16 expected (cross-platform; replaces smoke-gds.sh)
@@ -110,7 +110,7 @@ bongos exec scripts/gds/push-main.js    # SEC #863: the sanctioned gated main-pu
 ssh -o ConnectTimeout=10 lars@104.236.254.243 "~/deploy.sh"
 ```
 
-> **SEC #863 (ADR 0043):** push `main` only via `bongos exec scripts/gds/push-main.js`. A raw `git push origin main` is now blocked by the pre-push permission gate — that block is the friction that stops an ad-hoc bypass like the Builder 25 incident. `push-main.js` carries the `OTB_ALLOW_MAIN_PUSH` override because /merge-mode only ever lands tasks that already passed the grader + the Archon confirm gate. The post-push main audit (`bongos exec scripts/gds/main-audit.js`) re-checks regardless.
+> **SEC #863 (ADR 0043):** push `main` only via `bongos exec scripts/gds/push-main.js`. A raw `git push origin main` is now blocked by the pre-push permission gate — that block is the friction that stops an ad-hoc bypass like the Builder 25 incident. `push-main.js` carries the `CLOUDBONGOS_ALLOW_MAIN_PUSH` override because /merge-mode only ever lands tasks that already passed the grader + the Archon confirm gate. The post-push main audit (`bongos exec scripts/gds/main-audit.js`) re-checks regardless.
 
 The deploy script applies any new migrations, restarts the service, and curls /healthz.
 

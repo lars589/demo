@@ -207,7 +207,7 @@ function readSessionToken() {
       if (j && j.token) {
         return {
           token: j.token,
-          apiBase: process.env.GDS_API_BASE || process.env.PMS_API_BASE || j.api_base || 'https://amazonprimea.com',
+          apiBase: process.env.GDS_API_BASE || process.env.PMS_API_BASE || j.api_base || 'https://demo.cloudbongos.com',
         };
       }
     } catch (_) { /* try next */ }
@@ -278,7 +278,7 @@ async function pullMemory({ startCwd } = {}) {
   try {
     list = await apiGet(sess.apiBase, sess.token, '/api/gds/memory/files');
   } catch (_) {
-    return '[otb] memory pull: skipped (server unreachable).';
+    return '[cloudbongos] memory pull: skipped (server unreachable).';
   }
   if (!list || !list.ok) {
     // 401 (session not valid for this), 5xx, etc. — non-blocking.
@@ -346,7 +346,7 @@ async function pullMemory({ startCwd } = {}) {
     const content = fileRes.data.content;
     const got = sha256Hex(Buffer.from(content, 'utf8'));
     if (got !== sf.sha256) {
-      process.stderr.write(`[otb] memory pull: integrity check failed for ${sf.path} — skipped (not written).\n`);
+      process.stderr.write(`[cloudbongos] memory pull: integrity check failed for ${sf.path} — skipped (not written).\n`);
       return 'rejected';
     }
 
@@ -380,7 +380,7 @@ async function pullMemory({ startCwd } = {}) {
 
   // ---- summary ----
   if (pulled === 0 && rejected === 0 && failed === 0) {
-    return '[otb] memory: up to date.';
+    return '[cloudbongos] memory: up to date.';
   }
   if (pulled === 0) {
     // The pull RAN — it just didn't write anything. Lead with that so the line
@@ -389,13 +389,13 @@ async function pullMemory({ startCwd } = {}) {
     if (rejected) bits.push(`${rejected} skipped`);
     if (failed) bits.push(`${failed} failed`);
     if (skipped) bits.push(`${skipped} already current`);
-    return `[otb] memory pull: 0 written${bits.length ? `, ${bits.join(', ')}` : ''}.`;
+    return `[cloudbongos] memory pull: 0 written${bits.length ? `, ${bits.join(', ')}` : ''}.`;
   }
   const bits = [`pulled ${pulled} memory file${pulled === 1 ? '' : 's'} from the server`];
   if (skipped) bits.push(`${skipped} already current`);
   if (rejected) bits.push(`${rejected} skipped`);
   if (failed) bits.push(`${failed} failed`);
-  return `[otb] memory: ${bits.join(', ')}.`;
+  return `[cloudbongos] memory: ${bits.join(', ')}.`;
 }
 
 // Map hygiene (task 1362): after the pull, keep MEMORY.md — the index the harness
@@ -421,16 +421,16 @@ async function mapHygiene(startCwd) {
         if (r.written) {
           const now = mm.measure(plan.newText);
           const n = plan.demote.length;
-          return `[otb] memory map: auto-tidied — demoted ${n} stale entr${n === 1 ? 'y' : 'ies'} to the drawer (still saved + /recall-able); map now ~${now.tokens} tok / ${now.count} entries.`;
+          return `[cloudbongos] memory map: auto-tidied — demoted ${n} stale entr${n === 1 ? 'y' : 'ies'} to the drawer (still saved + /recall-able); map now ~${now.tokens} tok / ${now.count} entries.`;
         }
-        return `[otb] memory map: over budget (~${m.tokens} tok) — auto-tidy deferred (the file changed mid-session); it'll tidy next session.`;
+        return `[cloudbongos] memory map: over budget (~${m.tokens} tok) — auto-tidy deferred (the file changed mid-session); it'll tidy next session.`;
       }
     }
     if (m.overWarn || m.longLines.length) {
       const reasons = [];
       if (m.overWarn) reasons.push(`over the ~${mm.estTokens(mm.WARN_BYTES)}-token soft budget`);
       if (m.longLines.length) reasons.push(`${m.longLines.length} over-long index line${m.longLines.length === 1 ? '' : 's'}`);
-      return `[otb] memory map: ~${m.tokens} tok / ${m.count} entries — ${reasons.join(' · ')}; consider a compaction pass.`;
+      return `[cloudbongos] memory map: ~${m.tokens} tok / ${m.count} entries — ${reasons.join(' · ')}; consider a compaction pass.`;
     }
     return null;
   } catch (_) {

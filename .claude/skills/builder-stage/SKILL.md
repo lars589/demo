@@ -1,6 +1,6 @@
 ---
 name: builder-stage
-description: Stage the builder's current working tree on their own live game preview (the sandbox) so they can review a game change in a browser BEFORE shipping it to the main game (#927, ADR 0046). On a dev box the sandbox is sandbox-<login>.amazonprimea.com (ADR 0044); on a LOCAL full clone (laptop) it is a private http://localhost:<port> preview (task 1056). Triggers when the user says "/builder-stage", "stage my work", "stage this on my sandbox", "let me see it before shipping", "preview this change", "show me the change running", or right before /builder-ship when game surfaces changed. Own-scoped and machine-local — it only (re)starts the caller's own preview (box service or local process); it never touches prod or other builders' machines.
+description: Stage the builder's current working tree on their own live game preview (the sandbox) so they can review a game change in a browser BEFORE shipping it to the main game (#927, ADR 0046). On a dev box the sandbox is sandbox-<login>.demo.cloudbongos.com (ADR 0044); on a LOCAL full clone (laptop) it is a private http://localhost:<port> preview (task 1056). Triggers when the user says "/builder-stage", "stage my work", "stage this on my sandbox", "let me see it before shipping", "preview this change", "show me the change running", or right before /builder-ship when game surfaces changed. Own-scoped and machine-local — it only (re)starts the caller's own preview (box service or local process); it never touches prod or other builders' machines.
 ---
 
 You are staging a builder's in-progress work on **their own** sandbox — the live game preview running on their dev box (ADR 0044) — so they can see the change in a browser, suggest fixes, and only then decide to ship it to the main game (ADR 0046).
@@ -9,8 +9,8 @@ You are staging a builder's in-progress work on **their own** sandbox — the li
 
 The script auto-detects where it's running and (re)starts the right preview — both serve the **game-only** entry (`src/preview-server.js`, ADR 0052), degraded-DB (fully playable, no saved state, isolated from prod, no `/api/gds`):
 
-- **Dev box:** `box-game-preview.service` serves the `/workspace` tree at `https://sandbox-<login>.amazonprimea.com` (ADR 0044). Staging restarts that service.
-- **Local full clone (laptop):** a private detached process serves it at `http://localhost:<port>` (default 3100, `$OTB_PREVIEW_PORT` to override), managed by `scripts/gds/local-preview.js` (task 1056). Staging (re)starts that process. No tunnel, no public URL — it never leaves your machine.
+- **Dev box:** `box-game-preview.service` serves the `/workspace` tree at `https://sandbox-<login>.demo.cloudbongos.com` (ADR 0044). Staging restarts that service.
+- **Local full clone (laptop):** a private detached process serves it at `http://localhost:<port>` (default 3100, `$CLOUDBONGOS_PREVIEW_PORT` to override), managed by `scripts/gds/local-preview.js` (task 1056). Staging (re)starts that process. No tunnel, no public URL — it never leaves your machine.
 
 Either way staging = (re)start the preview, health-check it, and record a marker of exactly what tree state was staged. `/builder-ship` checks that marker: a game-surface diff that wasn't staged at its current state triggers the sandbox review gate before the claim resolves — on a box AND on a local clone.
 
@@ -47,5 +47,5 @@ Either way staging = (re)start the preview, health-check it, and record a marker
 ## Files this skill touches
 
 - Runs: `scripts/gds/sandbox-stage.js` (resolves box vs local; box → restarts `box-game-preview.service`; local → `scripts/gds/local-preview.js` + `local-preview-lib.js` (re)start `node src/preview-server.js`)
-- Reads: `/etc/otb/box.env` (a box's `BOX_PREVIEW_HOSTNAME`); `$OTB_PREVIEW_PORT` (local port, default 3100)
+- Reads: `/etc/cloudbongos/box.env` (a box's `BOX_PREVIEW_HOSTNAME`); `$CLOUDBONGOS_PREVIEW_PORT` (local port, default 3100)
 - Writes: the staged marker in the OS temp dir (`otb-sandbox-staged.json`); locally, the preview pid/log in the OS temp dir (`otb-local-preview.{pid,log}`)

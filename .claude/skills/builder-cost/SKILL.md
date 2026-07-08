@@ -5,7 +5,7 @@ description: Log a cost entry to the GDS — API spend, infra cost, art-pipeline
 
 **Script skill (authoritative).** The core action is `bongos cost <amount-usd> <category> [--task-id N] [--description "..."] [--skill <name>]`. Once the args are determined, run it and print its output verbatim.
 
-You are logging a cost entry on behalf of the current builder. The GDS keeps a running ledger that powers the cost-vs-value charts on `status.amazonprimea.com`.
+You are logging a cost entry on behalf of the current builder. The GDS keeps a running ledger that powers the cost-vs-value charts on `demo.cloudbongos.com`.
 
 ## What this skill does
 
@@ -43,5 +43,5 @@ The CLI hits `POST /api/gds/cost`, which inserts a `cost_log` row.
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`
+- Reads: `~/.config/cloudbongos/gds-session.json`
 - Calls: `POST /api/gds/cost`

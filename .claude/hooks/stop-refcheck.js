@@ -42,14 +42,14 @@ const path = require('node:path');
 // (its main() is guarded by require.main===module). If it can't be loaded we
 // fail open.
 let linkifyText = null;
-let RESOLVER_BASE = 'https://amazonprimea.com/builders#/task/';
+let RESOLVER_BASE = 'https://demo.cloudbongos.com/builders#/task/';
 try {
   const lib = require(path.resolve(__dirname, '..', '..', 'scripts', 'gds', 'linkify-refs.js'));
   linkifyText = lib.linkifyText;
   if (lib.RESOLVER_BASE) RESOLVER_BASE = lib.RESOLVER_BASE;
 } catch (_) { /* fail-open in evaluate() */ }
 
-const API_BASE = process.env.GDS_API_BASE || process.env.PMS_API_BASE || 'https://amazonprimea.com';
+const API_BASE = process.env.GDS_API_BASE || process.env.PMS_API_BASE || 'https://demo.cloudbongos.com';
 const TMP = process.platform === 'win32'
   ? (process.env.TEMP || process.env.TMP || require('node:os').tmpdir())
   : '/tmp';
@@ -172,9 +172,9 @@ async function fetchIds() {
 
 async function resolveIds() {
   // Offline / test override, mirroring linkify-refs.js --ids.
-  if (process.env.OTB_REFIDS) {
+  if (process.env.CLOUDBONGOS_REFIDS) {
     return new Set(
-      String(process.env.OTB_REFIDS).split(',').map((s) => Number(s.trim())).filter(Number.isInteger)
+      String(process.env.CLOUDBONGOS_REFIDS).split(',').map((s) => Number(s.trim())).filter(Number.isInteger)
     );
   }
   return readCachedIds() || (await fetchIds());

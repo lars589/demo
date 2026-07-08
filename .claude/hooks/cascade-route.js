@@ -5,7 +5,7 @@
 // — it nudges an interactive/autonomous session to draft a worker on the cheapest
 // sufficient model and escalate only on signal, instead of defaulting to Opus.
 //
-// BUILT DISABLED (owner directive). Off unless OTB_AUTONOMY_ENABLED=1 — then it
+// BUILT DISABLED (owner directive). Off unless CLOUDBONGOS_AUTONOMY_ENABLED=1 — then it
 // emits an ADVISORY (additionalContext) only; it NEVER blocks or rewrites the
 // spawn. When off it is a pure no-op (allow, no output). Mirrors the safety
 // posture of worktree-guard.js: a hook must never break a turn, so EVERY error
@@ -26,8 +26,8 @@ function readStdin() {
 
 async function main() {
   try {
-    if (process.env.OTB_AUTONOMY_ENABLED !== '1') process.exit(0); // inert by default
-    if (process.env.OTB_SUBAGENT === '1') process.exit(0);          // don't nudge inside a worker
+    if (process.env.CLOUDBONGOS_AUTONOMY_ENABLED !== '1') process.exit(0); // inert by default
+    if (process.env.CLOUDBONGOS_SUBAGENT === '1') process.exit(0);          // don't nudge inside a worker
 
     let hook = {};
     try { hook = JSON.parse((await readStdin()) || '{}'); } catch (_) { process.exit(0); }

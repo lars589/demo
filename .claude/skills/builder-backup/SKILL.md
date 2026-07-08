@@ -10,8 +10,8 @@ You are helping the builder interact with the GDS database backup system.
 Runs `bongos exec scripts/gds/backup.js` (status check) or `bongos exec scripts/gds/backup.js --trigger` (fire a fresh dump + wait for it to land).
 
 The backup infrastructure runs on the production droplet:
-- **Nightly local dump** — `pg_dump` to `/var/backups/gds/` as `<db>-<timestamp>.sql.gz`, 30-day retention (task [#412](https://amazonprimea.com/builders#/task/412))
-- **Weekly offsite copy** — latest local dump uploaded to DigitalOcean Spaces, 4-week retention (task [#415](https://amazonprimea.com/builders#/task/415), ADR 0025)
+- **Nightly local dump** — `pg_dump` to `/var/backups/gds/` as `<db>-<timestamp>.sql.gz`, 30-day retention (task [#412](https://demo.cloudbongos.com/builders#/task/412))
+- **Weekly offsite copy** — latest local dump uploaded to DigitalOcean Spaces, 4-week retention (task [#415](https://demo.cloudbongos.com/builders#/task/415), ADR 0025)
 
 This skill lets a Metic+ builder check on backups and take a fresh one — no SSH, no systemctl, no server access.
 

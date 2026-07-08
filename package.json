@@ -2,10 +2,10 @@
   "name": "demo",
   "private": true,
   "scripts": {
-    "start": "node node_modules/@cloudbongos/core/src/platform-server.js",
-    "migrate": "bash node_modules/@cloudbongos/core/scripts/migrate.sh"
+    "start": "node node_modules/@bongos/core/src/platform-server.js",
+    "migrate": "bash node_modules/@bongos/core/scripts/migrate.sh"
   },
   "dependencies": {
-    "@cloudbongos/core": "file:vendor/cloudbongos-core-1.17.0.tgz"
+    "@bongos/core": "file:vendor/bongos-core-1.17.0.tgz"
   }
 }

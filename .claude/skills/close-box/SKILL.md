@@ -39,5 +39,5 @@ Calls `POST /api/gds/box/close` via the cross-platform helper, after confirming 
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`
+- Reads: `~/.config/cloudbongos/gds-session.json`
 - Calls: `POST /api/gds/box/close`

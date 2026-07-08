@@ -25,11 +25,11 @@ What the bootstrap does, in order:
    - **No repo** (a bare laptop with only Claude Desktop): run the hosted bootstrap —
      - macOS / Linux:
        ```bash
-       curl -fsSL https://amazonprimea.com/api/gds/box/connect.sh | bash
+       curl -fsSL https://demo.cloudbongos.com/api/gds/box/connect.sh | bash
        ```
      - Windows (PowerShell):
        ```powershell
-       irm https://amazonprimea.com/api/gds/box/connect.ps1 | iex
+       irm https://demo.cloudbongos.com/api/gds/box/connect.ps1 | iex
        ```
    (For staging, swap the host — or set `GDS_API_BASE` before the local script.)
 

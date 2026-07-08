@@ -21,7 +21,7 @@
 // hook itself. Autonomous background dispatch (Phase 4.5) lives OUTSIDE this
 // per-prompt hook entirely — `conductor-dispatch.js auto-dispatch` selects
 // claimable work without a prompt, gated by the $0 autonomy-gate precheck
-// (INERT until OTB_AUTONOMY_ENABLED=1). The hook stays prompt-driven + zero-LLM.
+// (INERT until CLOUDBONGOS_AUTONOMY_ENABLED=1). The hook stays prompt-driven + zero-LLM.
 //
 // ## Discipline (matches .claude/hooks/rank-change-greeting.js)
 //
@@ -241,7 +241,7 @@ function dispatchFingerprint(advisories) {
 // session and the surface hasn't changed since).
 function render(advisories, opts = {}) {
   const showDispatch = !!opts.showDispatch;
-  const lines = ['[otb] 🎼 Conductor:'];
+  const lines = ['[cloudbongos] 🎼 Conductor:'];
   for (const a of advisories) {
     if (a.dispatch) {
       if (showDispatch) {
@@ -330,7 +330,7 @@ function readSessionToken() {
       const p = path.join(os.homedir(), '.config', 'otb', name);
       const j = JSON.parse(fs.readFileSync(p, 'utf8'));
       if (j && j.token) {
-        return { token: j.token, apiBase: j.api_base || 'https://amazonprimea.com', builderId: j.builder && j.builder.id };
+        return { token: j.token, apiBase: j.api_base || 'https://demo.cloudbongos.com', builderId: j.builder && j.builder.id };
       }
     } catch (_) { /* try next */ }
   }
@@ -401,10 +401,10 @@ async function resolveActiveClaims(cache, nowMs) {
 
 async function main() {
   // settings.json invokes this directly (`node conductor.js`), so these env
-  // kill-switches live here rather than in a bash shim: OTB_CONDUCTOR_OFF is
-  // the manual off-switch; OTB_SUBAGENT is set by grader.js's runSubagent so
+  // kill-switches live here rather than in a bash shim: CLOUDBONGOS_CONDUCTOR_OFF is
+  // the manual off-switch; CLOUDBONGOS_SUBAGENT is set by grader.js's runSubagent so
   // the Conductor never fires inside a grader/worker subagent. Either → no-op.
-  if (process.env.OTB_CONDUCTOR_OFF || process.env.OTB_SUBAGENT) return;
+  if (process.env.CLOUDBONGOS_CONDUCTOR_OFF || process.env.CLOUDBONGOS_SUBAGENT) return;
 
   const payload = parsePayload(readStdin());
   const prompt = typeof payload.prompt === 'string' ? payload.prompt : '';

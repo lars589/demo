@@ -72,5 +72,5 @@ The server now **enforces** the one-claim half (task 1642): `POST /api/gds/claim
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`
+- Reads: `~/.config/cloudbongos/gds-session.json`
 - Calls: `POST /api/gds/claims`

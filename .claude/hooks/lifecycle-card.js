@@ -118,7 +118,7 @@ function buildKeyCardContext(html, title) {
 }
 
 function main() {
-  if (process.env.OTB_SESSION_CARDS_OFF || process.env.OTB_SUBAGENT) return;
+  if (process.env.CLOUDBONGOS_SESSION_CARDS_OFF || process.env.CLOUDBONGOS_SUBAGENT) return;
   const p = parsePayload(readStdin());
   if (p.tool_name !== 'Bash') return;
   const cmd = p.tool_input && p.tool_input.command;

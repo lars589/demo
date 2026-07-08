@@ -180,10 +180,10 @@ function fetchEnvelope(root, script, extraArgs) {
 }
 
 function main() {
-  // Kill-switch + subagent guard (mirrors conductor.js): OTB_SESSION_CARDS_OFF
-  // is the manual off-switch; OTB_SUBAGENT is set by the grader's runSubagent so
+  // Kill-switch + subagent guard (mirrors conductor.js): CLOUDBONGOS_SESSION_CARDS_OFF
+  // is the manual off-switch; CLOUDBONGOS_SUBAGENT is set by the grader's runSubagent so
   // the hook never fires inside a grading/worker subagent.
-  if (process.env.OTB_SESSION_CARDS_OFF || process.env.OTB_SUBAGENT) return;
+  if (process.env.CLOUDBONGOS_SESSION_CARDS_OFF || process.env.CLOUDBONGOS_SUBAGENT) return;
 
   const payload = parsePayload(readStdin());
   const prompt = typeof payload.prompt === 'string' ? payload.prompt : '';

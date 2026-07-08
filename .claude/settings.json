@@ -17,7 +17,7 @@
     ]
   },
   "env": {
-    "OTB_INSESSION_COMPACT": "1"
+    "CLOUDBONGOS_INSESSION_COMPACT": "1"
   },
   "hooks": {
     "PreToolUse": [

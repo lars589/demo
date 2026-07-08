@@ -9,7 +9,7 @@ You are gracefully offboarding a builder from the Game Development System, or re
 
 ## First: is this an offboarding, or do you just want to close out your session?
 
-`/builder-exit` is **not** how you end a working session. It permanently **offboards an entire builder** — an Archon deactivating *someone else's* account (releases all their claims, drops them to Xenos, blocks new claims). "Exit" is the natural word for "log me off," so builders reach for this first ([#1448](https://amazonprimea.com/builders#/task/1448)) — but it's the wrong, and gated, tool for the everyday close-out. Before touching anything, check intent:
+`/builder-exit` is **not** how you end a working session. It permanently **offboards an entire builder** — an Archon deactivating *someone else's* account (releases all their claims, drops them to Xenos, blocks new claims). "Exit" is the natural word for "log me off," so builders reach for this first ([#1448](https://demo.cloudbongos.com/builders#/task/1448)) — but it's the wrong, and gated, tool for the everyday close-out. Before touching anything, check intent:
 
 - **The caller wants to wrap up their *own* online-terminal / Claude Code session** — no builder id given, the id is their own, or they said "close out / end / sign off / I'm done" → **do not attempt an offboard.** Say plainly: *"`/builder-exit` offboards an entire builder (releases all their claims, drops them to Xenos) and is Archon-only — it isn't the session close-out. To close out your session, run **`/builder-end`**: it resolves your claim (ship or release) and, on a dev box, offers to shut the box down with `close-box`."* Then stop and hand off to `/builder-end`.
 - **The caller is not an Archon** (rank below `archon`, or you can't confirm Archon) → same redirect. The endpoint would 403 (`rank_forbidden`) anyway; don't dead-end them on the error — point them at `/builder-end` (+ `close-box` on a box).
@@ -83,6 +83,6 @@ So memory archival is a **local** step, done on the exiting builder's machine �
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`, the exiting builder's local memory dir
+- Reads: `~/.config/cloudbongos/gds-session.json`, the exiting builder's local memory dir
 - Writes: `<memory>-archive/` (local snapshot, on the builder's machine)
 - Calls: `PATCH /api/gds/builders/:id/status`

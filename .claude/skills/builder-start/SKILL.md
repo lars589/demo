@@ -42,5 +42,5 @@ Delivery is now deterministic (task 1288). The **card-delivery hook** (`.claude/
 
 ## Files this skill touches
 
-- Reads: `~/.config/otb/gds-session.json`
+- Reads: `~/.config/cloudbongos/gds-session.json`
 - Calls: `/api/gds/me`, `/api/gds/tasks/claimable` (+ public progress/cost/recent/inbox/blockers for the status line)

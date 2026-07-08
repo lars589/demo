@@ -9,7 +9,7 @@ You are guiding a new owner from **zero to a live, owned Cloud Bongos instance**
 
 A new instance is **standalone** (ADR 0108): it runs from its **own git repo** with `@cloudbongos/core` installed as a **pinned npm dependency**, not a fork of this monorepo. Central updates are a `bongos upgrade` version-pin bump, not a merge. Every step below assumes this shape (`hosting_shape=standalone`).
 
-Four steps are **irreducibly human** and must be rendered as **precise, UI-first, copy-paste-safe prompts** (a non-technical owner does them with browser clicks, no terminal guessing): (1) create the GitHub repo, (2) create the GitHub OAuth app + secret, (3) own a domain, (4) the first sign-in. Everything else is automated. Never ask the owner to do in a terminal what they can do with a click.
+Four steps are **irreducibly human** and must be rendered as **precise, UI-first, copy-paste-safe prompts** (a non-technical owner does them with browser clicks, no terminal guessing): (1) create the GitHub repo, (2) approve the pre-filled **GitHub App** for sign-in (ONE click — the App Manifest flow, task 2080; no secret to paste), (3) own a domain, (4) the first sign-in. Everything else is automated. Never ask the owner to do in a terminal what they can do with a click.
 
 ## The canonical sequence
 
@@ -60,15 +60,21 @@ bongos exec scripts/gds/provision.js run-intents --apply     # drains the queue
 
 For `standalone` this composes: allocate a port → `git pull` + `npm ci --omit=dev` (installs the pinned core) → `createdb` + **instance-root** migrate (`node_modules/@cloudbongos/core/scripts/migrate.sh`) → per-instance `/etc/<slug>/web.env` → a **standalone systemd unit** (runs the core package's `platform-server.js` from the instance repo) → DNS A-record UPSERT → per-instance Caddy snippet (on-demand TLS) → `/healthz`. It is idempotent + dry-run-by-default (omit `--apply` to preview). It **fail-fasts on the step-2 DNS preflight** if step 2's token check was skipped.
 
-### 6. GitHub OAuth app + verified secret + first sign-in
+### 6. GitHub sign-in — ONE click (App Manifest flow), or a manual OAuth app + first sign-in
 
-**Human-only (UI-first) — create the OAuth app.** GitHub → **your account's** Settings → **Developer settings** → **OAuth Apps** → **New OAuth App**.
+**Recommended — one click (task 2080, ADR 0133).** GitHub has no create-an-OAuth-App API, but it *does* let us pre-fill a **GitHub App Manifest**: the owner clicks one link, approves on GitHub, and GitHub hands the control plane the credentials automatically — **no OAuth app to hand-create, no secret to copy-paste ever.** From the control-plane hall, **Start a project → “Set up GitHub sign-in”** (the button appears once the instance is requested; it needs the instance's **domain** set). Under the hood it:
+
+1. mints a one-time `state` + a pre-filled manifest via `POST /provisioning/instances/:id/github-app`;
+2. the browser POSTs the manifest to GitHub; the owner approves; GitHub redirects to the **mothership** callback `…/api/bongos/provisioning/github-app/callback` with a temporary code;
+3. the **control-plane runner** (`provision.js run-intents --apply`, the sole token-holder) exchanges the code for `client_id`/`client_secret`, writes them into `/etc/<slug>/web.env`, restarts the unit, and verifies `/healthz` reports `auth_configured:true`. The secret never touches the browser, chat, or the web tier (trust boundary, ADR 0111 §2).
+
+The instance's sign-in code is **unchanged** — a GitHub App's user token hits the same `GET /user` the OAuth-app flow did; GitHub simply ignores the extra `scope` param for Apps.
+
+**Fallback — create an OAuth app by hand.** If there's no control-plane hall (a lone standalone box) or you prefer manual: GitHub → **your account's** Settings → **Developer settings** → **OAuth Apps** → **New OAuth App**.
 > **Guidance the standup learned:** *Developer settings is under your **account**, not the repository* — this is the #1 place owners get stuck.
 - **Homepage URL:** `https://<domain>`
 - **Authorization callback URL:** `https://<domain>/api/gds/auth/web/callback` (PINNED — `auth.js` `WEB_REDIRECT_ORIGIN`; a sign-in begun on a `builders.` subdomain still calls back to the apex).
-- Copy the **Client ID**; click **Generate a new client secret** and copy it (GitHub shows it **once**).
-
-**Place the secret — VERIFIED, never by hand (task 1979):**
+- Copy the **Client ID**; click **Generate a new client secret** and copy it (GitHub shows it **once**). Then place it **VERIFIED, never by hand (task 1979)**:
 
 ```bash
 bongos exec scripts/gds/oauth-secret.js place <slug> --client-id <id> --client-secret <secret> --apply

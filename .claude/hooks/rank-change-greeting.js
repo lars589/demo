@@ -9,7 +9,7 @@
 // macOS, and Linux. Invoked by session-start.js; also runnable by hand:
 //   node .claude/hooks/rank-change-greeting.js
 //
-// Idempotency marker at ~/.config/otb/rank-change-seen.json, one record per
+// Idempotency marker at ~/.config/cloudbongos/rank-change-seen.json, one record per
 // builder_id so multiple identities on one machine don't clobber each other.
 //
 // Silent-failure discipline (matches the bash original): no session, network
@@ -20,7 +20,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
-let API_BASE = 'https://amazonprimea.com';
+let API_BASE = 'https://demo.cloudbongos.com';
 let loadSessionSync = null;
 try {
   ({ API_BASE, loadSessionSync } = require('../../scripts/gds/cli-lib'));
@@ -100,7 +100,7 @@ async function main() {
   if (String(seen[builderId] || '') === changeId) return;
 
   // Surface the greeting to Claude (SessionStart stdout → session context).
-  console.log(`[otb] ${greeting}`);
+  console.log(`[cloudbongos] ${greeting}`);
 
   // Transient file too — inspectable; per-builder name keeps multi-identity tidy.
   try {

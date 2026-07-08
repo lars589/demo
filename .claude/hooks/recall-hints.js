@@ -10,8 +10,8 @@
 //
 // Contract (mirrors the memory pull in session-start.js):
 //   - best-effort + SILENT on any failure (no token, network error, empty, slow);
-//   - kill-switched: never inside a grader subagent (OTB_SUBAGENT) or when
-//     explicitly disabled (OTB_RECALL_HINTS_OFF);
+//   - kill-switched: never inside a grader subagent (CLOUDBONGOS_SUBAGENT) or when
+//     explicitly disabled (CLOUDBONGOS_RECALL_HINTS_OFF);
 //   - HARD <2s budget — a single shared deadline aborts the network calls so it
 //     can never noticeably delay session start.
 //
@@ -69,7 +69,7 @@ function formatHints(claim, results) {
     .slice(0, HINT_LIMIT);
   if (rows.length === 0) return null;
   const lines = [];
-  lines.push(`[otb] 🔎 Recall hints for your active claim #${claim.task_id}:`);
+  lines.push(`[cloudbongos] 🔎 Recall hints for your active claim #${claim.task_id}:`);
   for (const r of rows) {
     const where = r.heading_path || r.source_ref || '';
     const title = r.title || r.source_ref || '(untitled)';
@@ -91,7 +91,7 @@ async function fetchJson(method, url, token, body, signal) {
 }
 
 async function main() {
-  if (process.env.OTB_SUBAGENT || process.env.OTB_RECALL_HINTS_OFF) return;
+  if (process.env.CLOUDBONGOS_SUBAGENT || process.env.CLOUDBONGOS_RECALL_HINTS_OFF) return;
 
   // Read the session token directly; no token → silent no-op (fresh box / signed out).
   let session;

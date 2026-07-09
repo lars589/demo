@@ -370,7 +370,7 @@ async function resolveActiveClaims(cache, nowMs) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
     const res = await fetch(`${sess.apiBase}/api/gds/me`, {
-      headers: { Authorization: `Bearer ${sess.token}`, 'User-Agent': 'amazonprimea-conductor-hook/1.0' },
+      headers: { Authorization: `Bearer ${sess.token}`, 'User-Agent': 'cloud-bongos-conductor-hook/1.0' },
       signal: ctrl.signal,
     });
     clearTimeout(timer);

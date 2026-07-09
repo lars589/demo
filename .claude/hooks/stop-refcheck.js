@@ -155,7 +155,7 @@ async function fetchIds() {
   try {
     const res = await fetch(`${API_BASE}/api/gds/public/ref-ids`, {
       signal: ctrl.signal,
-      headers: { 'User-Agent': 'amazonprimea-gds-refcheck/1.0' },
+      headers: { 'User-Agent': 'cloud-bongos-gds-refcheck/1.0' },
     });
     if (!res.ok) return null;
     const data = await res.json();

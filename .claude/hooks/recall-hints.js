@@ -82,7 +82,7 @@ function formatHints(claim, results) {
 // ---- network (raw fetch, fail-open) ----------------------------------------
 
 async function fetchJson(method, url, token, body, signal) {
-  const headers = { 'User-Agent': 'amazonprimea-gds-cli/1.0' };
+  const headers = { 'User-Agent': 'cloud-bongos-gds-cli/1.0' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   if (body) headers['Content-Type'] = 'application/json';
   const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null, signal });

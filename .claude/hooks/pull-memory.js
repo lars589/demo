@@ -222,7 +222,7 @@ async function apiGet(apiBase, token, urlPath) {
     const res = await fetch(`${apiBase}${urlPath}`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'User-Agent': 'amazonprimea-pull-memory-hook/1.0',
+        'User-Agent': 'cloud-bongos-pull-memory-hook/1.0',
       },
       signal: ctrl.signal,
     });

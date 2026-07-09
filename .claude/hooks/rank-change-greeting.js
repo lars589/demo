@@ -40,7 +40,7 @@ async function fetchPendingChange(apiBase, token) {
     const res = await fetch(`${apiBase}/api/gds/builders/me/pending-rank-change`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'User-Agent': 'amazonprimea-rank-change-hook/1.0',
+        'User-Agent': 'cloud-bongos-rank-change-hook/1.0',
       },
       signal: ctrl.signal,
     });
